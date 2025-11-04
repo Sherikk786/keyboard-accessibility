@@ -1,0 +1,64 @@
+name: Cypress CI - Full & Specific Run
+
+on:
+  push:
+    branches:
+      - main
+      - feature/**
+  workflow_dispatch: # Manual trigger allowed
+
+jobs:
+  cypress-tests:
+    runs-on: ubuntu-latest
+    env:
+      RUN_MODE: ${{ github.event.head_commit.message }}
+
+    steps:
+      - name: 🧩 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 📦 Install dependencies
+        run: npm install
+
+      - name: 🧪 Decide which Cypress tests to run
+        id: select-tests
+        run: |
+          echo "Commit Message: $RUN_MODE"
+          if [[ "$RUN_MODE" == *"RUN=ALL"* ]]; then
+            echo "Running ALL Cypress test cases..."
+            echo "SPEC_PATTERN=cypress/e2e/**/*.cy.js" >> $GITHUB_ENV
+          elif [[ "$RUN_MODE" == *"RUN=SPECIFIC"* ]]; then
+            echo "Running SPECIFIC test cases..."
+            # Example: run only ariaRolesAndLandmarks.cy.js
+            echo "SPEC_PATTERN=cypress/e2e/ariaRolesAndLandmarks.cy.js" >> $GITHUB_ENV
+          else
+            echo "No RUN flag found, skipping Cypress tests."
+            echo "SKIP=true" >> $GITHUB_ENV
+          fi
+
+      - name: 🚫 Skip message if no run flag
+        if: env.SKIP == 'true'
+        run: echo "❌ Skipping Cypress tests — commit message did not include RUN=ALL or RUN=SPECIFIC."
+
+      - name: 🧭 Run Cypress tests
+        if: env.SKIP != 'true'
+        uses: cypress-io/github-action@v6
+        with:
+          start: npm start
+          command: npx cypress run --spec "${{ env.SPEC_PATTERN }}"
+          wait-on: 'http://localhost:3000' # optional, if your app runs locally
+          wait-on-timeout: 60
+
+      - name: 📄 Upload Cypress Results (Videos + Screenshots)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-results
+          path: |
+            cypress/videos/
+            cypress/screenshots/
