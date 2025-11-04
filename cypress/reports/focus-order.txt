@@ -1,0 +1,10 @@
+1. [A] Change Text Size or Colors
+2. [A] All Translations
+3. [A] W3C homepage
+4. [A] Web Accessibility Initiative (WAI) homepage
+5. [A] Get Involved
+6. [A] About W3C WAI
+7. [INPUT] Search
+8. [BUTTON] Unnamed Element
+9. [A] Accessibility Fundamentals
+10. [A] Planning & Policies

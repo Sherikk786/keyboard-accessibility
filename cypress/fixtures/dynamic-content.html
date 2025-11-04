@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dynamic Content Accessibility Test</title>
+  <style>
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal.active {
+      display: flex;
+    }
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      width: 300px;
+    }
+  </style>
+</head>
+<body>
+  <button id="openModal">Open Alert</button>
+
+  <div id="alertBox" role="alert" aria-live="assertive" style="margin-top:20px; color: red;"></div>
+
+  <div id="myModal" class="modal" aria-modal="true" role="dialog" aria-labelledby="modalTitle">
+    <div class="modal-content">
+      <h2 id="modalTitle">Accessibility Modal</h2>
+      <p>This is a dynamic popup dialog.</p>
+      <button id="closeModal">Close</button>
+    </div>
+  </div>
+
+  <script>
+    const openBtn = document.getElementById('openModal');
+    const closeBtn = document.getElementById('closeModal');
+    const modal = document.getElementById('myModal');
+    const alertBox = document.getElementById('alertBox');
+
+    openBtn.addEventListener('click', () => {
+      modal.classList.add('active');
+      modal.querySelector('button').focus();
+      alertBox.textContent = 'Popup opened successfully!';
+    });
+
+    closeBtn.addEventListener('click', () => {
+      modal.classList.remove('active');
+      openBtn.focus();
+      alertBox.textContent = 'Popup closed.';
+    });
+
+    // Simple focus trap inside modal
+    modal.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        closeBtn.focus(); // only one focusable item for demo
+      }
+      if (e.key === 'Escape') {
+        modal.classList.remove('active');
+        openBtn.focus();
+      }
+    });
+  </script>
+</body>
+</html>

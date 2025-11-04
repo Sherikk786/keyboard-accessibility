@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Accessibility Demo - ARIA Roles & Landmarks</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    header, nav, main, footer {
+      padding: 15px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    header {
+      background-color: #004080;
+      color: white;
+    }
+    nav {
+      background-color: #f2f2f2;
+    }
+    main {
+      background-color: #fafafa;
+    }
+    footer {
+      background-color: #004080;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <header role="banner">
+    <h1>ARIA Roles & Landmarks Example</h1>
+  </header>
+
+  <nav role="navigation" aria-label="Main Navigation">
+    <ul>
+      <li><a href="#home">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <main role="main">
+    <section aria-labelledby="section1">
+      <h2 id="section1">Welcome</h2>
+      <p>This section demonstrates accessible landmark roles.</p>
+      <div role="alert">This is an example of an alert message.</div>
+    </section>
+  </main>
+
+  <footer role="contentinfo">
+    <p>&copy; 2025 Accessibility Demo. All rights reserved.</p>
+  </footer>
+</body>
+</html>

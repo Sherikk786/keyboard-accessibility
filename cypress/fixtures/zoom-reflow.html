@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Accessibility Demo - Zoom & Reflow</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 10px;
+    }
+    header {
+      background: #005f99;
+      color: white;
+      padding: 10px;
+      text-align: center;
+    }
+    main {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .card {
+      flex: 1 1 300px;
+      background: #f0f0f0;
+      padding: 15px;
+      border-radius: 8px;
+      min-width: 250px;
+    }
+    img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+    footer {
+      margin-top: 30px;
+      background: #eee;
+      padding: 10px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Zoom & Reflow Test Page</h1>
+  </header>
+
+  <main>
+    <div class="card">
+      <img src="https://via.placeholder.com/300" alt="Sample image">
+      <p>This is a sample card that should reflow properly when viewport changes.</p>
+    </div>
+    <div class="card">
+      <img src="https://via.placeholder.com/300" alt="Sample image">
+      <p>Another responsive card layout example.</p>
+    </div>
+  </main>
+
+  <footer>
+    <p>Footer content © 2025</p>
+  </footer>
+</body>
+</html>

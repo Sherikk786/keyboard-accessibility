@@ -1,0 +1,20 @@
+{
+  "name": "keyboard-accessibility",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "axe-core": "^4.11.0",
+    "cypress": "^15.5.0",
+    "cypress-axe": "^1.7.0",
+    "cypress-plugin-tab": "^1.0.5",
+    "cypress-real-events": "^1.15.0"
+  }
+}

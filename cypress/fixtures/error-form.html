@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Error Form</title>
+</head>
+<body>
+  <form id="loginForm">
+    <label for="email">Email:</label>
+    <input id="email" name="email" type="text" aria-required="true" />
+
+    <label for="password">Password:</label>
+    <input id="password" name="password" type="password" aria-required="true" />
+
+    <button id="submitBtn" type="button">Login</button>
+  </form>
+
+  <div id="errorContainer" role="alert" style="color:red; display:none;"></div>
+
+  <script>
+    document.getElementById('submitBtn').addEventListener('click', () => {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const errorDiv = document.getElementById('errorContainer');
+      errorDiv.style.display = 'none';
+      if (!email) {
+        errorDiv.textContent = 'Email is required';
+        errorDiv.style.display = 'block';
+      } else if (!password) {
+        errorDiv.textContent = 'Password is required';
+        errorDiv.style.display = 'block';
+      } else {
+        errorDiv.textContent = '';
+        alert('Login successful!');
+      }
+    });
+  </script>
+</body>
+</html>
