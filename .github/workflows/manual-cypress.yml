@@ -1,0 +1,32 @@
+name: Manual Cypress Run
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Run Mode (ALL or SPEC)'
+        required: true
+        default: 'ALL'
+      spec_name:
+        description: 'Spec file name (without .cy.js)'
+        required: false
+
+jobs:
+  run-cypress:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Install Dependencies
+        run: npm ci
+      - name: Run Cypress
+        run: |
+          if [[ "${{ github.event.inputs.mode }}" == "ALL" ]]; then
+            npx cypress run
+          else
+            npx cypress run --spec "cypress/e2e/${{ github.event.inputs.spec_name }}.cy.js"
+          fi

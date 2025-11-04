@@ -1,0 +1,48 @@
+name: Cypress CI - Full Run
+
+on:
+  push:
+    branches:
+      - main
+      - feature/**
+    paths:
+      - 'cypress/**'
+      - '**.yml'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Run Mode'
+        required: true
+        default: 'ALL'
+      spec_name:
+        description: 'Specific Spec Name (optional)'
+        required: false
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Cypress Tests
+        run: |
+          if [[ "${{ github.event.head_commit.message }}" == *"RUN=ALL"* || "${{ github.event.inputs.mode }}" == "ALL" ]]; then
+            npx cypress run
+          elif [[ "${{ github.event.head_commit.message }}" == *"RUN=SPEC="* ]]; then
+            SPEC=$(echo "${{ github.event.head_commit.message }}" | sed -n 's/.*RUN=SPEC=\([A-Za-z0-9_-]*\).*/\1/p')
+            npx cypress run --spec "cypress/e2e/${SPEC}.cy.js"
+          elif [[ "${{ github.event.inputs.mode }}" == "SPEC" ]]; then
+            npx cypress run --spec "cypress/e2e/${{ github.event.inputs.spec_name }}.cy.js"
+          else
+            echo "No run mode detected — skipping."
+          fi
