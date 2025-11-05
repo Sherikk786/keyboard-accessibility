@@ -1,17 +1,15 @@
-name: Run Specific Cypress Tests (Dynamic)
+name: Cypress CI
 
 on:
   push:
     branches:
+      - main
       - master
-      - 'feature/**'
-  pull_request:
-    branches:
-      - master
+      - feature/**
+  workflow_dispatch:  # allows manual run
 
 jobs:
-  run-specific-tests:
-    if: contains(github.event.head_commit.message, 'RUN=SPECIFIC')
+  run-cypress:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,26 +24,41 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Detect files from commit message
+      - name: Detect commit type
         id: detect
         run: |
           COMMIT_MSG="${{ github.event.head_commit.message }}"
-          echo "Commit Message: $COMMIT_MSG"
-          
-          # extract keywords inside [ ... ]
-          FILE_KEYWORDS=$(echo "$COMMIT_MSG" | grep -oP '\[\K[^\]]+')
-          
-          # convert comma-separated list to Cypress pattern
+          echo "📝 Commit message: $COMMIT_MSG"
+
+          # detect keywords safely
+          FILE_KEYWORDS=$(echo "$COMMIT_MSG" | grep -oP '\[\K[^\]]+' || true)
           FILE_PATTERN=$(echo "$FILE_KEYWORDS" | sed 's/,/|/g')
-          
-          if [ -z "$FILE_PATTERN" ]; then
-            echo "⚠️ No specific files mentioned, running all tests..."
+
+          # detect run type
+          if echo "$COMMIT_MSG" | grep -qi "RUN=ALL"; then
+            echo "RUN_TYPE=ALL" >> $GITHUB_ENV
+            echo "✅ Detected RUN=ALL → Running all tests"
             echo "specs=cypress/e2e/**/*.cy.js" >> $GITHUB_OUTPUT
+          elif echo "$COMMIT_MSG" | grep -qi "RUN=SPECIFIC"; then
+            echo "RUN_TYPE=SPECIFIC" >> $GITHUB_ENV
+            if [ -z "$FILE_PATTERN" ]; then
+              echo "⚠️ RUN=SPECIFIC found but no file keywords → running all tests"
+              echo "specs=cypress/e2e/**/*.cy.js" >> $GITHUB_OUTPUT
+            else
+              echo "✅ Detected RUN=SPECIFIC → files: $FILE_PATTERN"
+              echo "specs=cypress/e2e/*($FILE_PATTERN)*.cy.js" >> $GITHUB_OUTPUT
+            fi
           else
-            echo "✅ Running specs matching pattern: $FILE_PATTERN"
-            echo "specs=cypress/e2e/*($FILE_PATTERN)*.cy.js" >> $GITHUB_OUTPUT
+            echo "⏭️ No RUN=ALL or RUN=SPECIFIC → Skipping tests"
+            echo "skip_tests=true" >> $GITHUB_ENV
           fi
 
-      - name: Run Cypress
-        run: |
-          npx cypress run --spec "${{ steps.detect.outputs.specs }}"
+      - name: Run Cypress tests
+        if: env.skip_tests != 'true'
+        uses: cypress-io/github-action@v6
+        with:
+          start: npm start
+          wait-on: 'http://localhost:3000'
+          wait-on-timeout: 120
+          browser: chrome
+          spec: ${{ steps.detect.outputs.specs }}
