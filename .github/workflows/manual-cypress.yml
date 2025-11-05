@@ -1,32 +1,51 @@
-name: Manual Cypress Run
+name: Run Specific Cypress Tests (Dynamic)
 
 on:
-  workflow_dispatch:
-    inputs:
-      mode:
-        description: 'Run Mode (ALL or SPEC)'
-        required: true
-        default: 'ALL'
-      spec_name:
-        description: 'Spec file name (without .cy.js)'
-        required: false
+  push:
+    branches:
+      - master
+      - 'feature/**'
+  pull_request:
+    branches:
+      - master
 
 jobs:
-  run-cypress:
+  run-specific-tests:
+    if: contains(github.event.head_commit.message, 'RUN=SPECIFIC')
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Code
+      - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Install Dependencies
+
+      - name: Install dependencies
         run: npm ci
+
+      - name: Detect files from commit message
+        id: detect
+        run: |
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          echo "Commit Message: $COMMIT_MSG"
+          
+          # extract keywords inside [ ... ]
+          FILE_KEYWORDS=$(echo "$COMMIT_MSG" | grep -oP '\[\K[^\]]+')
+          
+          # convert comma-separated list to Cypress pattern
+          FILE_PATTERN=$(echo "$FILE_KEYWORDS" | sed 's/,/|/g')
+          
+          if [ -z "$FILE_PATTERN" ]; then
+            echo "⚠️ No specific files mentioned, running all tests..."
+            echo "specs=cypress/e2e/**/*.cy.js" >> $GITHUB_OUTPUT
+          else
+            echo "✅ Running specs matching pattern: $FILE_PATTERN"
+            echo "specs=cypress/e2e/*($FILE_PATTERN)*.cy.js" >> $GITHUB_OUTPUT
+          fi
+
       - name: Run Cypress
         run: |
-          if [[ "${{ github.event.inputs.mode }}" == "ALL" ]]; then
-            npx cypress run
-          else
-            npx cypress run --spec "cypress/e2e/${{ github.event.inputs.spec_name }}.cy.js"
-          fi
+          npx cypress run --spec "${{ steps.detect.outputs.specs }}"

@@ -46,7 +46,7 @@ describe('Accessibility Test - Zoom & Reflow', () => {
 
   it('should zoom in (simulate 200%) and verify no horizontal scroll', () => {
     cy.viewport(640, 360); 
-    cy.wait(2000); // ⏳
+    cy.wait(2000); 
 
     cy.window().then((win) => {
       const hasScroll = win.document.body.scrollWidth > win.innerWidth;
