@@ -1,4 +1,4 @@
-name: Run Specific Cypress Tests (Dynamics)
+name: Run Specific Cypress Tests (Dynamic)
 
 on:
   push:
